@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     def herokuApp = 'gallerypipeline' 
-                    def herokuToken = credentials('heroku-api-token') /
+                    def herokuToken = credentials('8519b567-8357-4399-9196-b98c267045ec') /
 
                     sh 'npm run build' // Build the application
 
