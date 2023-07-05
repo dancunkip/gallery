@@ -13,26 +13,32 @@ pipeline {
                 sh 'npm test' // Run project tests
             }
         }
-        
-      stage('Deploy to Heroku') {
-            steps {
-                script {
-                    def herokuApp = 'gallerypipeline' 
-                    def herokuToken = credentials('8519b567-8357-4399-9196-b98c267045ec') /
+stage('Deploy to Heroku') {
+    steps {
+        script {
+            def herokuApp = 'gallerypipeline' 
+            def herokuToken = credentials('8519b567-8357-4399-9196-b98c267045ec') 
+            def githubURL = 'https://github.com/dancunkip/gallery' 
+            sh 'npm run build' // Build the application
 
-                    sh 'npm run build' // Build the application
+            dir('tmp') {
+                // Clone the GitHub repository
+                sh "git clone ${githubURL} ."
+                sh 'git checkout master' 
 
-                    withCredentials([string(credentialsId: herokuToken, variable: 'HEROKU_API_TOKEN')]) {
-                        sh "heroku plugins:install heroku-cli-deploy" 
-                        sh "heroku login --interactive" 
-                        sh "heroku git:remote --app ${herokuApp}" 
-                        sh 'git push heroku master' 
+                withCredentials([string(credentialsId: herokuToken, variable: 'HEROKU_API_TOKEN')]) {
+                    sh "heroku plugins:install heroku-cli-deploy" /
+                    sh "heroku login --interactive" 
 
-                        sh 'heroku run npm run migrate --app ${herokuApp}' 
+                    sh "heroku git:remote --app ${herokuApp}" 
+                    sh 'git push heroku master'
+                    sh 'heroku run npm run migrate --app ${herokuApp}' 
                 }
             }
         }
     }
+}
+
 
     
     post {
