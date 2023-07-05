@@ -17,20 +17,18 @@ pipeline {
       stage('Deploy to Heroku') {
             steps {
                 script {
-                    def herokuApp = 'gallerypipeline' // Replace with your Heroku app name
-                    def herokuToken = credentials('heroku-api-token') // Replace with your Heroku API token credential ID
+                    def herokuApp = 'gallerypipeline' 
+                    def herokuToken = credentials('heroku-api-token') /
 
                     sh 'npm run build' // Build the application
 
                     withCredentials([string(credentialsId: herokuToken, variable: 'HEROKU_API_TOKEN')]) {
-                        sh "heroku plugins:install heroku-cli-deploy" // Install Heroku CLI deploy plugin
-                        sh "heroku login --interactive" // Login to Heroku using the API token
+                        sh "heroku plugins:install heroku-cli-deploy" 
+                        sh "heroku login --interactive" 
+                        sh "heroku git:remote --app ${herokuApp}" 
+                        sh 'git push heroku master' 
 
-                        sh "heroku git:remote --app ${herokuApp}" // Set the Heroku remote for deployment
-                        sh 'git push heroku master' // Push the code to Heroku
-
-                        sh 'heroku run npm run migrate --app ${herokuApp}' // Run database migrations on Heroku
-                    }
+                        sh 'heroku run npm run migrate --app ${herokuApp}' 
                 }
             }
         }
@@ -47,9 +45,9 @@ pipeline {
         }
         success {
             script {
-                def herokuURL = 'https://galleypipeline.herokuapp.com' // Replace with the actual Heroku URL
+                def herokuURL = 'https://gallerypipeline-327f0f007f30.herokuapp.com/' 
                 slackSend (
-                    channel: '#your-slack-channel',
+                    channel: '#dankipip1',
                     color: 'good',
                     message: "Deployment successful! Build ID: ${env.BUILD_ID}",
                     attachments: [
